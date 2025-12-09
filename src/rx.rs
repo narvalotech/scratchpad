@@ -23,30 +23,35 @@ use tokio::io::AsyncReadExt;
 use std::io;
 
 async fn process_socket<T: AsyncReadExt + Unpin>(mut socket: T) {
-    println!("Processing..");
+    println!("OPENED");
 
     let mut v: Vec<u8> = Vec::new();
     loop {
-        if let Ok(byte) = socket.read_u8().await {
-            v.push(byte);
-            println!("RX: {:x} VEC {:?}", byte, v);
-            let decoded: Result<InputEvent, _> = from_bytes_cobs(&mut v.clone());
-            if let Ok(data) = decoded {
-                println!("DECODED: {:?}", data);
-                v.clear();
+        match socket.read_u8().await {
+            Ok(byte) => {
+                if byte != 0 {
+                    v.push(byte);
+                }
+                println!("RX: {:x} VEC {:?}", byte, v);
+                let decoded: Result<InputEvent, _> = from_bytes_cobs(&mut v.clone());
+                if let Ok(data) = decoded {
+                    println!("DECODED: {:?}", data);
+                    v.clear();
+                }
+            },
+            Err(_) => {
+                println!("CLOSED");
                 return;
-            }
+            },
         }
     }
 }
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
-    println!("hello");
-
     let listener = TcpListener::bind("127.0.0.1:9999").await?;
 
-    println!("Bound. Waiting for conn..");
+    println!("LISTEN");
 
     loop {
         let (socket, _) = listener.accept().await?;
