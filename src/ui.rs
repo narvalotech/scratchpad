@@ -1,41 +1,70 @@
 use iced::Center;
-use iced::widget::{Column, button, column, text};
+use iced::widget::{Row, button, row, column};
 use iced;
 
 #[derive(Default)]
-struct Counter {
-    value: i64,
+struct State {
 }
 
 #[derive(Debug, Clone, Copy)]
-enum Message {
-    Increment,
-    Decrement,
+enum KeyEvent {
+    Unknown,
+    KeyDown,
+    KeyUp,
+    KeyLeft,
+    KeyRight,
+    KeySelect,
+    KeyBack,
+    KeyPower,
 }
 
-impl Counter {
-    fn update(&mut self, message: Message) {
+impl State {
+    fn update(&mut self, message: KeyEvent) {
         match message {
-            Message::Increment => {
-                self.value += 1;
+            KeyEvent::KeyLeft => {
+                println!("left");
             }
-            Message::Decrement => {
-                self.value -= 1;
+            KeyEvent::KeyRight => {
+                println!("right");
             }
+            KeyEvent::KeyUp => {
+                println!("up");
+            }
+            KeyEvent::KeyDown => {
+                println!("down");
+            }
+            KeyEvent::KeySelect => {
+                println!("select");
+            }
+            KeyEvent::KeyBack => {
+                println!("back");
+            }
+            _ => { println!("nuthin"); }
         }
     }
 
-    fn view(&self) -> Column<'_, Message> {
-        column![
-            button("Increment").on_press(Message::Increment),
-            text(self.value).size(50),
-            button("Decrement").on_press(Message::Decrement)
+    fn view(&self) -> Row<'_, KeyEvent> {
+        row![
+            // D-pad
+            button("<").on_press(KeyEvent::KeyLeft),
+            column![
+                button("/\\").on_press(KeyEvent::KeyUp),
+                button("\\/").on_press(KeyEvent::KeyDown),
+            ].spacing(10).align_x(Center),
+            button(">").on_press(KeyEvent::KeyRight),
+
+            // Enter/Back
+            column![
+                button("SELECT").on_press(KeyEvent::KeySelect),
+                button(" BACK").on_press(KeyEvent::KeyBack),
+            ].spacing(10).align_x(Center),
         ]
+        .spacing(10)
         .padding(20)
-        .align_x(Center)
+        .align_y(Center)
     }
 }
 
 pub fn main() -> iced::Result {
-    iced::run(Counter::update, Counter::view)
+    iced::run(State::update, State::view)
 }
