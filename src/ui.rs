@@ -66,5 +66,12 @@ impl State {
 }
 
 pub fn main() -> iced::Result {
-    iced::run(State::update, State::view)
+    let settings = iced::window::Settings {
+        size: iced::Size{width: 240.0, height: 120.0},
+        resizable: false,
+        ..Default::default()
+    };
+
+    // iced::run(State::update, State::view)
+    iced::application(State::default, State::update, State::view).window(settings).run()
 }
