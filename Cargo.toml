@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+iced = "0.14.0"
 postcard = { version = "1.1.3", features = ["alloc"] }
 serde = "1.0.228"
 tokio = { version = "1.48.0", features = ["full"] }
@@ -15,3 +16,7 @@ path = "src/rx.rs"
 [[bin]]
 name = "tx"
 path = "src/tx.rs"
+
+[[bin]]
+name = "ui"
+path = "src/ui.rs"
