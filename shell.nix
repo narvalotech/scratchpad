@@ -1,24 +1,29 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixpkgs> { } }:
 
-pkgs.mkShell rec {
-  buildInputs = with pkgs; [
-    rustup
-    rust-analyzer
-
-    expat
-    fontconfig
-    freetype
-    freetype.dev
-    libGL
-    pkg-config
-    xorg.libX11
-    xorg.libXcursor
-    xorg.libXi
-    xorg.libXrandr
-    wayland
+let
+  dlopenLibraries = with pkgs; [
     libxkbcommon
+
+    # GPU backend
+    vulkan-loader
+    # libGL
+
+    # Window system
+    wayland
+    # xorg.libX11
+    # xorg.libXcursor
+    # xorg.libXi
   ];
 
-  LD_LIBRARY_PATH =
-    builtins.foldl' (a: b: "${a}:${b}/lib") "${pkgs.vulkan-loader}/lib" buildInputs;
+in pkgs.mkShell {
+  nativeBuildInputs = with pkgs; [
+    rustup
+    rust-analyzer
+  ];
+
+  # additional libraries that your project
+  # links to at build time, e.g. OpenSSL
+  buildInputs = [];
+
+  env.RUSTFLAGS = "-C link-arg=-Wl,-rpath,${pkgs.lib.makeLibraryPath dlopenLibraries}";
 }
