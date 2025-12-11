@@ -1,4 +1,9 @@
-use iced::Center;
+use iced::event::{self, Event};
+use iced::keyboard;
+use iced::keyboard::key;
+use iced::keyboard::key::Key::Named;
+
+use iced::{Center, Subscription};
 use iced::widget::{Row, button, row, column};
 use iced;
 
@@ -6,7 +11,7 @@ use iced;
 struct State {
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 enum KeyEvent {
     Unknown,
     KeyDown,
@@ -16,9 +21,14 @@ enum KeyEvent {
     KeySelect,
     KeyBack,
     KeyPower,
+    KeyRaw(Event)
 }
 
 impl State {
+    fn subscription(&self) -> Subscription<KeyEvent> {
+        event::listen().map(KeyEvent::KeyRaw)
+    }
+
     fn update(&mut self, message: KeyEvent) {
         match message {
             KeyEvent::KeyLeft => {
@@ -39,6 +49,28 @@ impl State {
             KeyEvent::KeyBack => {
                 println!("back");
             }
+            KeyEvent::KeyPower => {
+                println!("power");
+            }
+            KeyEvent::KeyRaw(event) => match event {
+                Event::Keyboard(keyboard::Event::KeyPressed{key: Named(code), ..}) => {
+                    let converted = match code {
+                        key::Named::ArrowDown => KeyEvent::KeyDown,
+                        key::Named::ArrowUp => KeyEvent::KeyUp,
+                        key::Named::ArrowLeft => KeyEvent::KeyLeft,
+                        key::Named::ArrowRight => KeyEvent::KeyRight,
+                        key::Named::Enter => KeyEvent::KeySelect,
+                        key::Named::Backspace => KeyEvent::KeyBack,
+                        key::Named::Escape => KeyEvent::KeyPower,
+                        _ => {
+                            KeyEvent::Unknown
+                        }
+                    };
+                    // println!("key: {:?}", event);
+                    self.update(converted)
+                }
+                _ => {},
+            },
             _ => { println!("nuthin"); }
         }
     }
@@ -73,5 +105,8 @@ pub fn main() -> iced::Result {
     };
 
     // iced::run(State::update, State::view)
-    iced::application(State::default, State::update, State::view).window(settings).run()
+    iced::application(State::default, State::update, State::view)
+        .window(settings)
+        .subscription(State::subscription)
+        .run()
 }
