@@ -13,9 +13,11 @@ use postcard::{from_bytes_cobs, to_allocvec_cobs};
 
 use tokio::net::TcpStream;
 use tokio::io::AsyncWriteExt;
+use tokio::sync::mpsc;
 
-#[derive(Default)]
 struct State {
+    tx: mpsc::Sender<KeyEvent>,
+    _rt: tokio::runtime::Runtime,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, Eq, PartialEq)]
@@ -41,33 +43,65 @@ pub struct InputEvent {
     key: KeyEvent,
 }
 
+use tokio::runtime::Builder;
+
 impl State {
+    pub fn new() -> Self {
+        let runtime = Builder::new_multi_thread()
+            .worker_threads(1)
+            .enable_all()
+            .build()
+            .unwrap();
+
+        let (send, recv) = mpsc::channel(16);
+
+        let _handle = runtime.spawn(tcp_client(recv));
+
+        State {
+            tx: send,
+            _rt: runtime,
+        }
+    }
+
     fn subscription(&self) -> Subscription<UIEvent> {
         event::listen().map(UIEvent::Raw)
     }
 
     fn update(&mut self, message: UIEvent) {
-        match message {
-            UIEvent::Key(KeyEvent::KeyLeft) => {
-                println!("left");
-            }
-            UIEvent::Key(KeyEvent::KeyRight) => {
-                println!("right");
-            }
-            UIEvent::Key(KeyEvent::KeyUp) => {
-                println!("up");
-            }
-            UIEvent::Key(KeyEvent::KeyDown) => {
-                println!("down");
-            }
-            UIEvent::Key(KeyEvent::KeySelect) => {
-                println!("select");
-            }
-            UIEvent::Key(KeyEvent::KeyBack) => {
-                println!("back");
-            }
-            UIEvent::Key(KeyEvent::KeyPower) => {
-                println!("power");
+        let data = match message {
+            UIEvent::Key(code) => match code {
+                KeyEvent::KeyLeft => {
+                    println!("left");
+                    code
+                }
+                KeyEvent::KeyRight => {
+                    println!("right");
+                    code
+                }
+                KeyEvent::KeyUp => {
+                    println!("up");
+                    code
+                }
+                KeyEvent::KeyDown => {
+                    println!("down");
+                    code
+                }
+                KeyEvent::KeySelect => {
+                    println!("select");
+                    code
+                }
+                KeyEvent::KeyBack => {
+                    println!("back");
+                    code
+                }
+                KeyEvent::KeyPower => {
+                    println!("power");
+                    code
+                }
+                KeyEvent::Unknown => {
+                    println!("unknown");
+                    code
+                }
             }
             UIEvent::Raw(event) => match event {
                 Event::Keyboard(keyboard::Event::KeyPressed{key: Named(code), ..}) => {
@@ -84,11 +118,14 @@ impl State {
                         }
                     };
                     // println!("key: {:?}", event);
-                    self.update(UIEvent::Key(converted))
+                    // self.update(UIEvent::Key(converted))
+                    converted
                 }
-                _ => {},
+                _ => {KeyEvent::Unknown},
             },
-            _ => { println!("nuthin"); }
+        };
+        if data != KeyEvent::Unknown {
+            self.tx.blocking_send(data).unwrap();
         }
     }
 
@@ -114,6 +151,12 @@ impl State {
     }
 }
 
+impl Default for State {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 async fn write_event_to_stream(stream: &mut TcpStream, event: InputEvent) {
     let output: Vec<u8> = to_allocvec_cobs(&event).unwrap();
 
@@ -123,33 +166,22 @@ async fn write_event_to_stream(stream: &mut TcpStream, event: InputEvent) {
     println!("Written: {:?}", decoded);
 }
 
-async fn tcp_client() {
+async fn tcp_client(mut rx: mpsc::Receiver<KeyEvent>) {
     // Connect to a peer
     let mut stream = TcpStream::connect("127.0.0.1:9999").await.unwrap();
 
-    let e1 = InputEvent {
-        key: KeyEvent::KeyUp,
-    };
-
-    let e2 = InputEvent {
-        key: KeyEvent::KeyDown,
-    };
-
-    write_event_to_stream(&mut stream, e1).await;
-    write_event_to_stream(&mut stream, e2).await;
+    loop {
+        if let Some(keycode) = rx.recv().await {
+            let e = InputEvent {
+                key: keycode
+            };
+            println!("Writing: {:?}", e);
+            write_event_to_stream(&mut stream, e).await;
+        }
+    }
 }
 
-use tokio::runtime::Builder;
-
 pub fn main() -> iced::Result {
-    let runtime = Builder::new_multi_thread()
-        .worker_threads(1)
-        .enable_all()
-        .build()
-        .unwrap();
-
-    let _handle = runtime.spawn(tcp_client());
-
     let settings = iced::window::Settings {
         size: iced::Size{width: 240.0, height: 120.0},
         resizable: false,
