@@ -69,40 +69,7 @@ impl State {
 
     fn update(&mut self, message: UIEvent) {
         let data = match message {
-            UIEvent::Key(code) => match code {
-                KeyEvent::KeyLeft => {
-                    println!("left");
-                    code
-                }
-                KeyEvent::KeyRight => {
-                    println!("right");
-                    code
-                }
-                KeyEvent::KeyUp => {
-                    println!("up");
-                    code
-                }
-                KeyEvent::KeyDown => {
-                    println!("down");
-                    code
-                }
-                KeyEvent::KeySelect => {
-                    println!("select");
-                    code
-                }
-                KeyEvent::KeyBack => {
-                    println!("back");
-                    code
-                }
-                KeyEvent::KeyPower => {
-                    println!("power");
-                    code
-                }
-                KeyEvent::Unknown => {
-                    println!("unknown");
-                    code
-                }
-            }
+            UIEvent::Key(code) => code,
             UIEvent::Raw(event) => match event {
                 Event::Keyboard(keyboard::Event::KeyPressed{key: Named(code), ..}) => {
                     let converted = match code {
@@ -125,6 +92,7 @@ impl State {
             },
         };
         if data != KeyEvent::Unknown {
+            println!("send: {:?}", data);
             self.tx.blocking_send(data).unwrap();
         }
     }
@@ -162,12 +130,11 @@ async fn write_event_to_stream(stream: &mut TcpStream, event: InputEvent) {
 
     stream.write_all(&output).await.unwrap();
 
-    let decoded: InputEvent = from_bytes_cobs(&mut output.clone()).unwrap();
-    println!("Written: {:?}", decoded);
+    // let decoded: InputEvent = from_bytes_cobs(&mut output.clone()).unwrap();
+    // println!("Written: {:?}", decoded);
 }
 
 async fn tcp_client(mut rx: mpsc::Receiver<KeyEvent>) {
-    // Connect to a peer
     let mut stream = TcpStream::connect("127.0.0.1:9999").await.unwrap();
 
     loop {
@@ -175,7 +142,6 @@ async fn tcp_client(mut rx: mpsc::Receiver<KeyEvent>) {
             let e = InputEvent {
                 key: keycode
             };
-            println!("Writing: {:?}", e);
             write_event_to_stream(&mut stream, e).await;
         }
     }
