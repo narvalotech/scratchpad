@@ -9,7 +9,7 @@ use iced;
 
 // --------------------------
 use serde::{Serialize, Deserialize};
-use postcard::{from_bytes_cobs, to_allocvec_cobs};
+use postcard::{to_allocvec_cobs};
 
 use tokio::net::TcpStream;
 use tokio::io::AsyncWriteExt;
