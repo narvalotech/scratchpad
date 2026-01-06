@@ -57,11 +57,14 @@ def main():
     while True:
         time.sleep(1)
         hours, minutes, seconds = get_time()
-        nighttime = (hours > 21) or (hours < 7)
+        nighttime = (hours >= 21) or (hours <= 7)
         n = "Nighttime" if nighttime else "Daytime"
         print(f"Hour: {hours}:{minutes}:{seconds} => {n}")
 
         w = "RED" if nighttime else "GREEN"
         led_write(leds, w)
+
+        if minutes % 10 == 0:
+            sync_time()
 
 main()
