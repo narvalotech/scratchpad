@@ -2,6 +2,7 @@ from machine import Pin
 from neopixel import NeoPixel
 import time
 import ntptime, network
+import machine
 
 def led_write(leds, color):
     if color == "RED":
@@ -27,7 +28,7 @@ def init_wifi():
     print('Config', wifi.ifconfig())
 
 def sync_time():
-    while True:
+    for _ in range(30):
         try:
             print("Getting time")
             ntptime.host = '192.168.4.32'
@@ -36,6 +37,11 @@ def sync_time():
         except:
             print("Failed to get time")
             time.sleep(1)
+
+    # nobody expects the NVIC_SystemReset()
+    print("Exiting..")
+    machine.reset()
+    # sys.exit(0)
 
 def get_time():
     t = time.gmtime()
@@ -64,7 +70,7 @@ def main():
         w = "RED" if nighttime else "GREEN"
         led_write(leds, w)
 
-        if minutes % 10 == 0:
+        if minutes % 10 == 0 and seconds == 0:
             sync_time()
 
 main()
