@@ -1,0 +1,10 @@
+[package]
+name = "ble-central-server"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bluer = { version = "0.17", features = ["bluetoothd", "id"] }
+tokio = { version = "1", features = ["full"] }
+uuid = "1.0"
+futures = "0.3"
