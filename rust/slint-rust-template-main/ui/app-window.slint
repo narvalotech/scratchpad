@@ -1,30 +1,35 @@
 import {
-    AboutSlint,
     Button,
-    VerticalBox,
     StandardTableView,
     TextEdit,
     TabWidget,
 } from "std-widgets.slint";
 
 component ScanResults inherits Rectangle {
+    // StandardTableView rows are a model of models (a list of rows, where each row is a list of items)
+    in property <[[StandardListViewItem]]> device_rows: [];
+
     min-width: 500px;
     min-height: 200px;
     VerticalLayout {
-    StandardTableView {
-        columns: [
-            { title: "Address", min-width: 50px },
-            { title: "RSSI" },
-            { title: "Name" },
-            { title: "Data" },
-        ];
-        rows: [
-            [ {text: "A"}, {text: "B"}, {text: "C"}, {text: "D"}],
-        ];
-    }}
+        StandardTableView {
+            columns: [
+                { title: "Address", min-width: 50px },
+                { title: "RSSI" },
+                { title: "Name" },
+                { title: "Data" },
+            ];
+            rows: root.device_rows;
+        }
+    }
 }
 
 export component AppWindow inherits Window {
+    // Define the callback here so Rust can "see" it
+    callback start_scan();
+
+    in property <[[StandardListViewItem]]> scan_results <=> results.device_rows;
+
     VerticalLayout {
         HorizontalLayout {
             VerticalLayout {
@@ -34,6 +39,10 @@ export component AppWindow inherits Window {
                 max-width: 100px;
                 Button {
                     text: "Start scan";
+                    // Link the UI click to the callback
+                    clicked => {
+                        root.start_scan();
+                    }
                 }
 
                 Button {
@@ -59,8 +68,7 @@ export component AppWindow inherits Window {
                 TabWidget {
                     Tab {
                         title: "Scan results";
-                        ScanResults {
-                         }
+                        results := ScanResults { }
                     }
 
                     Tab {
