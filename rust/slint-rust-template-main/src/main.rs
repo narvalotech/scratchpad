@@ -1,9 +1,12 @@
+mod host_types;
+
 slint::include_modules!();
 use slint::{ModelRc, SharedString, StandardListViewItem, VecModel};
 use std::rc::Rc;
+use crate::host_types::{Address};
 
 struct Device {
-    address: String,
+    address: Address,
     rssi: i32,
     name: String,
     data: String,
@@ -12,8 +15,9 @@ struct Device {
 
 // A helper function to map your internal domain logic to the UI representation
 fn create_row_from_device(device: &Device) -> ModelRc<StandardListViewItem> {
+    let addr = format!("{}", device.address);
     let row_data = vec![
-        StandardListViewItem::from(SharedString::from(&device.address)),
+        StandardListViewItem::from(SharedString::from(&addr)),
         StandardListViewItem::from(SharedString::from(device.rssi.to_string())),
         StandardListViewItem::from(SharedString::from(&device.name)),
         StandardListViewItem::from(SharedString::from(&device.data)),
@@ -33,7 +37,7 @@ fn main() {
     ui.on_start_scan(move || {
         // In a real app, this might come from a Bluetooth crate
         let new_device = Device {
-            address: "00:1A:7D:DA:71:13".into(),
+            address: Address::new(1, 0x00aA7DDA7113),
             rssi: -65,
             name: "Kitchen Sensor".into(),
             data: "0x010203".into(),
