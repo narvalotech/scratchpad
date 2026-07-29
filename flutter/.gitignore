@@ -2,6 +2,8 @@
 .devenv*
 devenv.local.nix
 devenv.local.yaml
+.android
+local.properties
 
 # direnv
 .direnv
