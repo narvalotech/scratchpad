@@ -36,22 +36,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-flutter": {
-      "locked": {
-        "lastModified": 1756251650,
-        "narHash": "sha256-NmtX+/M+dT4caGo/rZuO5LyL6ef0FIhLD5GWasUOSt0=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "27b23c793a053b3cb802100a15a82d714c17629c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "27b23c793a053b3cb802100a15a82d714c17629c",
-        "type": "github"
-      }
-    },
     "nixpkgs-src": {
       "flake": false,
       "locked": {
@@ -72,8 +56,7 @@
     "root": {
       "inputs": {
         "devenv": "devenv",
-        "nixpkgs": "nixpkgs",
-        "nixpkgs-flutter": "nixpkgs-flutter"
+        "nixpkgs": "nixpkgs"
       }
     }
   },

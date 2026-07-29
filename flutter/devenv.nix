@@ -18,6 +18,7 @@ in
   env.ANDROID_EMULATOR_HOME = "/home/jon/.android";
   env.ANDROID_AVD_HOME = "/home/jon/.android/avd";
   env.GRADLE_USER_HOME = config.devenv.dotfile + "/.gradle";
+  env.CHROME_EXECUTABLE = "firefox";
 
   # devenv's android module points FLUTTER_ROOT straight into the read-only
   # /nix/store, which breaks the flutter-plugin-loader composite build.
