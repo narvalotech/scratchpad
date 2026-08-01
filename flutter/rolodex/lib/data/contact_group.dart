@@ -99,6 +99,8 @@ final friends = ContactGroup(
 
 final work = ContactGroup(id: 2, label: 'Work');
 
+final contactLists = [allPhone, friends, work];
+
 List<ContactGroup> generateSeedData() {
   return [allPhone, friends, work];
 }
