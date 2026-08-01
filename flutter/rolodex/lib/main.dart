@@ -16,6 +16,7 @@ class RolodexApp extends StatelessWidget {
     return const CupertinoApp(
       title: 'Rolodex',
       theme: CupertinoThemeData(
+        brightness: Brightness.light,
         barBackgroundColor: CupertinoDynamicColor.withBrightness(
           color: Color(0xFFF9F9F9),
           darkColor: Color(0xFF1D1D1D),
