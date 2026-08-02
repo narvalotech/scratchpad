@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import 'contact_groups.dart';
+import 'contacts.dart';
 
 const largeScreenMinWidth = 600;
 
@@ -28,9 +29,8 @@ class _AdaptiveLayoutState extends State<AdaptiveLayout> {
 
         if (isLargeScreen) {
           return _buildLargeScreenLayout();
-          
         } else {
-          return const ContactGroupsPage();
+          return ContactListsPage(listId: 0); // New
         }
       },
     );
