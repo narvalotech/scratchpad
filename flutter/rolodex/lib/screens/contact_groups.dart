@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import '../data/contact_group.dart';
 import '../data/contact.dart';
 import '../main.dart';
+import 'contacts.dart';
 
 class ContactGroupsPage extends StatelessWidget {
   const ContactGroupsPage({super.key});
@@ -9,10 +10,12 @@ class ContactGroupsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _ContactGroupsView(
-      selectedListId: 0,
-      onListSelected: (list) {
-        debugPrint(list.toString());
-      },
+      onListSelected: (list) => Navigator.of(context).push(
+        CupertinoPageRoute<void>( // PageRoute => iOS page transition
+          title: list.title,
+          builder: (context) => ContactListsPage(listId: list.id),
+        ),
+      ),
     );
   }
 }

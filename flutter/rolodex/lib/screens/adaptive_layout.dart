@@ -30,7 +30,7 @@ class _AdaptiveLayoutState extends State<AdaptiveLayout> {
         if (isLargeScreen) {
           return _buildLargeScreenLayout();
         } else {
-          return ContactListsPage(listId: 0); // New
+          return const ContactGroupsPage(); // reverted
         }
       },
     );
