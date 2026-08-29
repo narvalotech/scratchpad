@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package inventory;
+
+enum ItemCategory {
+  CATEGORY_UNSPECIFIED = 0;
+  ELECTRONICS = 1;
+  GROCERY = 2;
+  CLOTHING = 3;
+}
+
+message Address {
+  string street = 1;
+  string city = 2;
+  string zip = 3;
+}
+
+message Item {
+  string name = 1;
+  ItemCategory category = 2;
+  double price = 3;
+  repeated int32 warehouse_ids = 4;   // scalar repeated -> packed on the wire by default in proto3
+}
+
+message Order {
+  string order_id = 1;
+  Address shipping_address = 2;
+  repeated Item items = 3;
+  repeated int32 tracking_codes = 4;  // also packed
+}
